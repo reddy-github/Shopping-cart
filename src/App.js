@@ -5,6 +5,7 @@ function BrandList() {
   const [products, setProducts] = useState([]);
   const [brands, setBrands] = useState([]);
   const [clickedBrands, setClickedBrands] = useState();
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -28,6 +29,20 @@ function BrandList() {
   }, [products]);
 
   const devices = products.filter((item) => item.brand == clickedBrands);
+
+  const onRemove = (product) => {};
+  const onAdd = (product) => {
+    const index = cart.findIndex((item) => item.id === product.id);
+    if (index !== -1) {
+      const updatedCart = [...cart];
+      updatedCart[index].quantity += 1;
+      setCart(updatedCart);
+      console.log(cart)
+      
+    } else {
+      setCart([...cart, { ...product, quantity: 1 }]);
+    }
+  };
 
   return (
     <div class="container">
@@ -61,10 +76,14 @@ function BrandList() {
               <br />
 
               <span className="price">Price : ({product.price})</span>
+              <button className="button" onClick={() => onRemove(product)}>
+                -
+              </button>
+              <span> 1 </span>
+              <button className="button" onClick={() => onAdd(product)}>
+                +
+              </button>
 
-              <button  className="button" onclick={() => brand.count - 1}>-</button>
-              <span >  1 </span>
-              <button className="button" onclick={() => brand.count - 1}>+</button>
               <hr />
             </>
           ))}
@@ -73,6 +92,19 @@ function BrandList() {
 
       <div>
         <h1>Cart</h1>
+        <ul>
+            {cart.map((product)=>(
+              <>
+              <li>{product.name}</li>
+              
+              <span>Qty: ({product.quantity})  Total:()</span>
+              
+              <hr/>
+
+
+              </>
+            ))}
+            </ul>
       </div>
     </div>
   );
