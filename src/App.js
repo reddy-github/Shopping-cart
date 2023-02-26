@@ -6,6 +6,13 @@ function BrandList() {
   const [brands, setBrands] = useState([]);
   const [clickedBrands, setClickedBrands] = useState();
   const [cart, setCart] = useState([]);
+  //const [isCartNotEmpty, setIsCartNotEmpty] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [mobileError, setMobileError] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -30,24 +37,92 @@ function BrandList() {
 
   const devices = products.filter((item) => item.brand == clickedBrands);
 
-  const onRemove = (product) => {};
+  const onRemove = (product) => {
+    const updatesCart = [...cart];
+    const index = cart.findIndex((item) => item.id === product.id);
+    if (index !== 1) {
+      if (updatesCart[index].quantity > 1) {
+        updatesCart[index].quantity -= 1;
+        setCart(updatesCart);
+      } else {
+        updatesCart.splice(index, 1);
+        setCart(updatesCart);
+        //if (updatesCart.length === 0) {
+       //   setIsCartNotEmpty(false);
+       // }
+      }
+    }
+  };
   const onAdd = (product) => {
     const index = cart.findIndex((item) => item.id === product.id);
     if (index !== -1) {
       const updatedCart = [...cart];
       updatedCart[index].quantity += 1;
       setCart(updatedCart);
-      console.log(cart)
-      
+      console.log(cart);
     } else {
       setCart([...cart, { ...product, quantity: 1 }]);
     }
+
+    //setIsCartNotEmpty(true);
   };
+
+  const onCheckOut=(e)=>{
+      e.preventDefault();
+          if ((name !=='') && (name.length<50) && (/^[A-Za-z]+$/.test(name)) ){
+            
+              setNameError('');
+            }else{
+              setNameError('Please enter Valid name');
+            }
+
+
+           if(email!=='' && (/\S+@\S+\.\S+/).test(email)){
+              setEmailError('');
+                }
+           else {
+               setEmailError('Please enter Valid email');
+               } 
+
+
+
+            if(mobile !=='' && (/^[6-9]\d{9}$/).test(mobile) && mobile.length==10){
+              setMobileError('')
+            }
+            else{
+              setMobileError('Please enter Valid number');
+            }
+
+            if (nameError=='' && emailError=='' && mobileError=='') {
+
+                console.log('Order Summary')
+                console.log(name)
+                console.log(email)
+                console.log(mobile);
+                const  review=cart.filter((item)=>(
+                  <li key={item.id}> Brand: {item.brand}  Name: {item.name}</li>
+                 ))
+                 console.log(review);
+               
+                 console.log(numberOfItems);
+                 console.log( grandTotal);
+                
+                
+
+
+            };
+
+            
+  }
+
+
+  const numberOfItems=cart.reduce((total,item)=>total+item.quantity,0);
+  const grandTotal=cart.reduce((total,item)=>total+item.price*item.quantity,0);
 
   return (
     <div class="container">
-      <div>
-        <h1>Brands</h1>
+      <div className="sub-container brands-container">
+        <h3>Brands</h3>
         <ul>
           {brands.map((brand) => (
             <>
@@ -67,8 +142,8 @@ function BrandList() {
           ))}
         </ul>
       </div>
-      <div>
-        <h1>Products of {clickedBrands} </h1>
+      <div className="sub-container products-container">
+        <h3>Products of {clickedBrands} </h3>
         <ul>
           {devices.map((product) => (
             <>
@@ -90,21 +165,57 @@ function BrandList() {
         </ul>
       </div>
 
-      <div>
-        <h1>Cart</h1>
-        <ul>
-            {cart.map((product)=>(
+      <div className="sub-container ">
+        <div className="cart">
+          <h3>Cart</h3>
+          <ul>
+            {cart.map((product) => (
               <>
-              <li>{product.name}</li>
-              
-              <span>Qty: ({product.quantity})  Total:()</span>
-              
-              <hr/>
+                <li>{product.name}</li>
 
+                <span>Qty: ({product.quantity}) </span>
 
+                <span>Total: ({product.quantity * product.price}) </span>
+
+                <hr />
               </>
             ))}
-            </ul>
+          </ul>
+        </div>
+        <div className="checkout-contianer">
+          <h3>Total N.o of Items: ({numberOfItems})</h3>
+          <h3>Grand Total: ({grandTotal})</h3>
+          <form className="form" >
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Name"
+              
+            />
+            
+            {nameError && <span>{nameError}</span>}
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+            />
+            
+            {emailError && <span>{emailError}</span>}
+
+            <input
+                  type="tel"
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value)}
+                  placeholder="Mobile"
+
+            />
+             {mobileError && <span>{mobileError}</span>}
+
+            <button onClick={onCheckOut} className="button-checkout">Checkout</button>
+          </form>
+        </div>
       </div>
     </div>
   );
